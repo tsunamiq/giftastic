@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Stop: It's Giphy time</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Droid+Serif|Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+
+
+
+
+
+ 
+<script type="text/javascript">
+  $(document).ready(function(){
+
+    
+    //===========================================================
+    //                 Animal Program Object
+    //===========================================================
+    
+    var animalObject = {
+
+      animalArray : ["lion", "tiger", "jaguar", "cougar", "snow leopard", "leopard","cheetah","eurasian lynx", "caracal"]
+
+
+    };
+
+    console.log(animalObject.animalArray);
+
+
+    //===========================================================
+    //                 Load Page
+    //===========================================================
+
+    createButtons(animalObject.animalArray);
+
+
+
+    //===========================================================
+    //                 Add to array
+    //===========================================================
+
+    $("#submitData").on("click", function(){
+      var newAnimal = $("#addAnimal").val();
+      animalObject.animalArray.push(newAnimal);
+      console.log(animalObject.animalArray);
+      createButtons(animalObject.animalArray);
+
+    });
+
+
+    //===========================================================
+    //                 Create Buttons loop
+    //===========================================================
+
+    function createButtons(shortArray){
+      $("#imgButtons").empty();
+      // var shortArray = animalObject.animalArray;
+      for(var i=0 ; i < shortArray.length; i++){
+        console.log(shortArray[i]);
+        $("<button/>").attr({
+          image : shortArray[i],
+          id : "button"
+        })
+        .text(shortArray[i]).appendTo("#imgButtons");
+      };
+    }
+    //===========================================================
+    //                 Display images
+    //===========================================================
+
+    $("#imgButtons").on("click","#button", function(){
+      
+      var animalName = $(this).attr("image");
+      console.log("animal name:" + animalName);
+      var url = "http://api.giphy.com/v1/gifs/search?q=" + animalName + "&api_key=dc6zaTOxFJmzC"
+      
+      $.ajax({
+        url: url,
+        method: 'GET',
+      }).done(function(result) {
+       console.log(result);
+
+      
+        $("#imageGroup").empty();
+        for(var i=0 ; i < 9; i++){
+
+          var imageUrl = result.data[i].images["fixed_height_small_still"].url;
+          var rating = result.data[i].rating;
+
+          var imageCol = $("<div/>").addClass("col-md-3 image").attr("id", "image"+i).appendTo("#imageGroup"); 
+          $("<div/>").text("rating: " + rating).appendTo("#image"+i);
+
+          $("<img/>").attr({
+            class: "imageStyle gif",
+            "data-still":result.data[i].images["fixed_height_small_still"].url,
+            "data-animate": result.data[i].images["fixed_height_small"].url,
+            src: imageUrl,
+            id: i,
+            "data-state" : "still"
+          }).appendTo("#image"+i);
+        };
+      });
+    });
+
+
+    //===========================================================
+    //                 Animation
+    //===========================================================
+
+    $(document).on("click",".gif", function() {
+      console.log("click worked");
+        
+        var state = $(this).attr("data-state");
+        // CODE GOES HERE
+        if(state == "still"){
+
+         
+          $(this).attr("src", $(this).attr("data-animate"));
+          $(this).attr("data-state", "animate");
+        }else{
+          $(this).attr("src", $(this).attr("data-still"));
+          $(this).attr("data-state", "still");
+        }
+    });
+    
+
+
+
+  });
+</script>
+
+
+<body>
+  
+    <div class="jumbotron">
+      <h1>Never Giphy Up</h1> 
+    </div>
+  
+
+  <div class="container"> 
+    
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3" id=imgButtons>
+      </div>
+      <div class="col-md-3">
+        <h3> Add an Animal</h3>
+        <input id="addAnimal"></input>
+        <button id=submitData>Submit!</button>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2" id=imageGroup>
+      </div>
+    </div>
+
+  </div>
+
+
+</body>
+
+</html>
